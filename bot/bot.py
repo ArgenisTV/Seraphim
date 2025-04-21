@@ -1,8 +1,11 @@
 import discord
 import yt_dlp # Extracts info and URLs from Youtube
+import asyncio
 from config import DISCORD_TOKEN
 from discord import FFmpegPCMAudio # Needed to create audio sources
 from discord.ext import commands # Allows commands creation
+from collections import deque # Data structure for the queue.
+import re # Will validate if the request is a URL or text search.
 from dotenv import load_dotenv # Just loads variables from the .env file
 from fuzzywuzzy import fuzz # Used to get the best match for a song's name
 
@@ -11,9 +14,12 @@ intents.message_content = True # This is needed for the bot to be able to read m
 
 bot = commands.Bot(command_prefix="s!", intents=intents) # Rules how commands should start. "s!"
 
+playlist = deque() # The current song and next ones.
+previous_songs = deque(maxlen=5) # Previous songs. Used in the !previous command
+
 @bot.event
 async def on_ready():
-    print(f"{bot.user} Be not afraid!")
+    print(f"Heed {bot.user}! Be not afraid!")
 
 @bot.command()
 async def ping(ctx): 
@@ -24,7 +30,7 @@ async def play(ctx, *, url: str): # What happens when the bot recognizes the pla
     voice_channel = ctx.author.voice.channel if ctx.author.voice else None # Checks if the user is in a voice channel.
 
     if not voice_channel: 
-        await ctx.send("Joined a voice channel, you have not.")
+        await ctx.send("Thou must join a voice channel before summoning cosmical vibrations!")
         return # Throws error message if user is not in a voice channel.
 
     # Connecting to a voice channel
@@ -68,19 +74,43 @@ async def play(ctx, *, url: str): # What happens when the bot recognizes the pla
         
         # If no valid info is found
         if not info:
-            await ctx.send("No tune found worthy of thine ears.")
+            await ctx.send("No tune found worthy of thine ears!")
             return
+        
+        # Append song to playlist 
+        playlist.append(info)
+        await ctx.send(f"{voice_client.user}! Thy request... is worthy. Will attune to: *{info['title']}*")
+        if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
+            await play_next(ctx)
 
     # Create an audio source through FFmpeg
     source = FFmpegPCMAudio(audio_url)
 
-    if voice_client.is_playing():
-        voice_client.add() 
-    voice_client.play(source)
-    await ctx.send(f" Heed: **{title}**")
+async def play_next(ctx):
+    if not playlist:
+        await ctx.send("Cosmical vibrations' resonance attenuated...")
+        return # Message when the queue is empty.
+    
+    # Pop the next song into the previous songs queue
+    info = playlist.popleft() 
+    previous_songs.append(info)
+
+    audio_url = info['url']
+    audio_source = FFmpegPCMAudio(audio_url, option='-vn') # VN = No video
+
+    def after_playing(error):
+        fut = asyncio.run_coroutine_threadsafe(play_next(ctx), bot.loop) # Future. A corroutine is called.
+
+        # Try catch for any exceptions during the corroutine execution.
+        try:
+            fut.result() # 
+        except Exception as e:
+            print(e)
+
+    ctx.voice_client.play(audio_source, after=after_playing)
+    await ctx.send(f"Attuning to: *{info['title']}*") 
+
+
 
 # Execute bot
 bot.run(DISCORD_TOKEN)
-
-
-
