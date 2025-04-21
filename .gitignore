@@ -1,4 +1,25 @@
+# Virtual environment
 venv/
-__pycache__/
 .env
+
+# OS Config files
+.DS_Store
+Thumbs.db
+
+# User files, including temp files
 *.pyc
+__pycache__/
+*.log
+
+# VSCode folder
+.vscode/
+
+# Docker file
+*.pid
+
+# yt_dlp specific files 
+*.part
+*.webmn
+*.m4a
+*.mp3
+*.opus

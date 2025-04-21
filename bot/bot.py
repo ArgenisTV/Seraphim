@@ -1,13 +1,10 @@
-import os
 import discord
 import yt_dlp # Extracts info and URLs from Youtube
-from discord import FFmpegPCMAudio
+from config import DISCORD_TOKEN
+from discord import FFmpegPCMAudio # Needed to create audio sources
 from discord.ext import commands # Allows commands creation
 from dotenv import load_dotenv # Just loads variables from the .env file
 from fuzzywuzzy import fuzz # Used to get the best match for a song's name
-
-load_dotenv() # Loads environment variables
-TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default() # Indicates the type of events the bot can listen to. For now, default events
 intents.message_content = True # This is needed for the bot to be able to read messages
@@ -23,7 +20,7 @@ async def ping(ctx):
     await ctx.send("Use me, will you?") # Mainly a test command. CTX is the command context, such as who wrote, on which channel, etc.
 
 @bot.command()
-async def play(ctx, url: str): # What happens when the bot recognizes the play command.
+async def play(ctx, *, url: str): # What happens when the bot recognizes the play command.
     voice_channel = ctx.author.voice.channel if ctx.author.voice else None # Checks if the user is in a voice channel.
 
     if not voice_channel: 
@@ -39,11 +36,13 @@ async def play(ctx, url: str): # What happens when the bot recognizes the play c
 
     await ctx.send(f"Thy choice shall be considered...") # Message shown while the bot is searching for the audio.
 
-    # Options for audio stream
+    # Options for Youtube audio stream
     ydl_opts ={
         'format' : 'bestaudio/best',
         'quiet': True, # No console logs
         'noplaylist': True, 
+        'extractaudio': True,
+        'audioformat': 'mp3',
         'default_search': 'ytsearch', # Defaults to YouTube search if not using a URL.
         'extract_flat': 'in_playlist',
     }
@@ -51,6 +50,9 @@ async def play(ctx, url: str): # What happens when the bot recognizes the play c
     # Video info is extracted
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False) 
+
+        # Obtain URL for the best match
+        audio_url = info.get('url')
 
         # If multiple results are found, the closest match to the requested song's name is chosen.
         if 'entries' in info:
@@ -63,16 +65,22 @@ async def play(ctx, url: str): # What happens when the bot recognizes the play c
                     best_match = entry
                     highest_score = score
             info = best_match
+        
+        # If no valid info is found
+        if not info:
+            await ctx.send("No tune found worthy of thine ears.")
+            return
 
-    # Reproduce audio through FFmpeg
+    # Create an audio source through FFmpeg
     source = FFmpegPCMAudio(audio_url)
+
     if voice_client.is_playing():
-        voice_client.add()
+        voice_client.add() 
     voice_client.play(source)
     await ctx.send(f" Heed: **{title}**")
 
 # Execute bot
-bot.run(TOKEN)
+bot.run(DISCORD_TOKEN)
 
 
 
