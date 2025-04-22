@@ -99,18 +99,39 @@ async def play_next(ctx):
     audio_source = FFmpegPCMAudio(audio_url, option='-vn') # VN = No video
 
     def after_playing(error):
-        fut = asyncio.run_coroutine_threadsafe(play_next(ctx), bot.loop) # Future. A corroutine is called.
+        fut = asyncio.run_coroutine_threadsafe(play_next(ctx), bot.loop) # Future. A corroutine is called to handle the asyncronic task of waiting for the song to end. 
 
-        # Try catch for any exceptions during the corroutine execution.
+        # Try catch for any exceptions during the corroutine execution. 
         try:
-            fut.result() # 
+            fut.result() 
         except Exception as e:
             print(e)
 
     ctx.voice_client.play(audio_source, after=after_playing)
     await ctx.send(f"Attuning to: *{info['title']}*") 
 
+@bot.command()
+async def pause(ctx):
+    if ctx.voice_client.is_playing("{bot.user} *Freezes*"):
+        ctx.voice_client.pause()
+        await ctx.send("*Freezes")
+    else:
+        await ctx.send("*Stares*")
 
+@bot.command()
+async def resume(ctx):
+    if ctx.voice_client.is_paused():
+        ctx.voice_client.resume()
+        await ctx.send("*Awakens")
+    else:
+        await ctx.send("*Fixates on you for a second*")
+        
+@bot.command()
+async def stop(ctx):
+    if ctx.voice_client:
+        await ctx.voice_client.disconnect("{bot.user} *Slumbers*")
+    else:
+        await ctx.send("{bot.user} *Flaps half its wings*")
 
 # Execute bot
 bot.run(DISCORD_TOKEN)
