@@ -15,7 +15,7 @@ class MusicPlayer:
         self.previous_songs = deque(maxlen=5) # Previous songs. Used in the !previous command
         self.audio_provider = audio_provider
         
-    async def play(self, ctx, *, url): # What happens when the bot recognizes the play command.
+    async def play(self, ctx, url): # What happens when the bot recognizes the play command.
         voice_channel = ctx.author.voice.channel if ctx.author.voice else None # Checks if the user is in a voice channel.
         
         if not voice_channel: 
@@ -33,7 +33,7 @@ class MusicPlayer:
 
         try:
             info = await self.audio_provider.search(url)
-        except Exception as e:
+        except Exception as e: # e is not used because if a song is not found, the error message will be the same regardless of the provider.
             await ctx.send("No tune found worthy of thine ears!")
             return
         
@@ -57,7 +57,7 @@ class MusicPlayer:
         self.previous_songs.append(info)
 
         audio_url = info['url']
-        audio_source = FFmpegPCMAudio(audio_url, option='-vn') # VN = No video
+        audio_source = FFmpegPCMAudio(audio_url, options='-vn') # VN = No video
 
         def after_playing(error):
             fut = asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop) # Future. A corroutine is called to handle the asyncronic task of waiting for the song to end. 
