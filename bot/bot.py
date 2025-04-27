@@ -4,12 +4,16 @@ from discord.ext import commands # Allows commands creation
 from dotenv import load_dotenv # Just loads variables from the .env file
 from player import MusicPlayer
 from providers.youtube import YoutubeProvider
+from providers.spotify import SpotifyProvider
+
+yt_Provider = YoutubeProvider()
+sp_Provider = SpotifyProvider()
 
 intents = discord.Intents.default() # Indicates the type of events the bot can listen to. For now, default events
 intents.message_content = True # This is needed for the bot to be able to read messages
 
 bot = commands.Bot(command_prefix="s!", intents=intents) # Rules how commands should start. "s!"
-player = MusicPlayer(bot, audio_provider=YoutubeProvider()) # Dependency injection
+player = MusicPlayer(bot, yt_Provider, sp_Provider) # Dependency injection
 
 @bot.event
 async def on_ready():

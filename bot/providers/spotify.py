@@ -7,9 +7,10 @@ class SpotifyProvider(AudioProvider):
     # Seemingly, bots cannot play music from Spotify directly.
     # Thus, music info will be extracted from a Spotify URL and the player will use Youtube.
     
-    def __init__(self):
+    def __init__(self, sp_client = None):
         # Spotipy client initialization through client auth
-        self.sp = spotipy.Spotify(
+        # sp_client allows tests to be ran without needing to validate Spotify Client ID
+        self.sp = sp_client or spotipy.Spotify(
             auth_manager=SpotifyClientCredentials())
         
         
@@ -36,6 +37,6 @@ class SpotifyProvider(AudioProvider):
     def extract_track_id(self, url: str) -> str:
         parts = url.split("/")
         track_part = parts[-1] # This grabs the last part of the URL
-        track_id = track_part.split("?")[0] # This removes extra parameters that are found after "?"
+        track_id = track_part.split("?")[0] # This removes extra parameters that are found after "?si"
             
         return track_id

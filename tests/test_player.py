@@ -8,6 +8,13 @@ class FakeYoutubeProvider:
             'title': f"Mock result for {url}",
             'url': "https://www.youtube.com/watch?v=sd-dK8OqtVU&ab_channel=MFDOOM-Topic"
         }
+        
+class FakeSpotifyProvider:
+    async def search(self, url: str) -> dict:
+        return {
+            "title": "Coffin Nails - MF DOOM",
+            "url": "Coffin Nails - MF DOOM" # URL is only used for the Youtube search
+        }
             
 @pytest.mark.asyncio 
 async def test_play_adds_song_to_playlist():
@@ -45,7 +52,7 @@ async def test_play_adds_song_to_playlist():
     mock_ctx.send = AsyncMock() # Simulates bot's messages
     
     # A MusicPlayer instance is created using the fake provider
-    player = MusicPlayer(bot=MagicMock(), audio_provider=FakeYoutubeProvider())
+    player = MusicPlayer(bot=MagicMock(), yt_provider=FakeYoutubeProvider(), sp_provider=FakeSpotifyProvider())
     
     # Play method executed with a generic fake query
     await player.play(mock_ctx, url="https://www.youtube.com/watch?v=sd-dK8OqtVU&ab_channel=MFDOOM-Topic")

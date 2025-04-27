@@ -9,11 +9,12 @@ import re # Will validate if the request is a URL or text search.
 # self.audio_provider = audio_provider
 
 class MusicPlayer:
-    def __init__(self, bot, audio_provider):
+    def __init__(self, bot, yt_provider, sp_provider):
         self.bot = bot
         self.playlist = deque() # The current song and next ones.
         self.previous_songs = deque(maxlen=5) # Previous songs. Used in the !previous command
-        self.audio_provider = audio_provider
+        self.yt_provider = yt_provider
+        self.sp_provider = sp_provider
         
     async def play(self, ctx, url): # What happens when the bot recognizes the play command.
         voice_channel = ctx.author.voice.channel if ctx.author.voice else None # Checks if the user is in a voice channel.
@@ -32,7 +33,11 @@ class MusicPlayer:
         await ctx.send(f"Thy choice shall be considered...") # Message shown while the bot is searching for the audio.
 
         try:
-            info = await self.audio_provider.search(url)
+            # This line was from before two providers existed. info = await self.audio_provider.search(url)
+            if "open.spotify.com" in url:
+                info = await self.sp_provider.search(url)
+            else:
+                info = await self.yt_provider.search(url)
         except Exception as e: # e is not used because if a song is not found, the error message will be the same regardless of the provider.
             await ctx.send("No tune found worthy of thine ears!")
             return
