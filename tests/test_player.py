@@ -8,8 +8,7 @@ class FakeYoutubeProvider:
             'title': f"Mock result for {url}",
             'url': "https://www.youtube.com/watch?v=sd-dK8OqtVU&ab_channel=MFDOOM-Topic"
         }
-        
-        
+            
 @pytest.mark.asyncio 
 async def test_play_adds_song_to_playlist():
     
