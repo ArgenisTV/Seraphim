@@ -6,7 +6,7 @@ class FakeYoutubeProvider:
     async def search(self, url):
         return {
             'title': f"Mock result for {url}",
-            'url': "https://www.youtube.com/watch?v=sd-dK8OqtVU&ab_channel=MFDOOM-Topic"
+            'url': "https://www.youtube.com/watch?v=ez8m4PXksQs&t=25730s&ab_channel=EurovisionSongContest"
         }
         
 class FakeSpotifyProvider:

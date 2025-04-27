@@ -1,6 +1,7 @@
-from base import AudioProvider
+from bot.providers.base import AudioProvider
 from yt_dlp import YoutubeDL
 from fuzzywuzzy import fuzz
+from urllib.parse import urlparse, parse_qs
 
 class YoutubeProvider(AudioProvider):
     
@@ -13,8 +14,27 @@ class YoutubeProvider(AudioProvider):
             'extractaudio': True,
             'audioformat': 'mp3',
             'default_search': 'ytsearch', # Defaults to YouTube search if not using a URL.
-            'extract_flat': 'in_playlist',
+            'extract_flat': 'True',
         }
+
+    def extract_video_id(self, url: str) -> str:
+        # If it is a Short URL
+        if "youtu.be" in url:
+            return url.split("/")[-1]
+        
+        # If it is a Long URL
+        parsed_url = urlparse(url)
+        if "youtube.com" in parsed_url.netloc:
+            # Search for parameter 'v' which contains the video ID
+            query_params = parse_qs(parsed_url.query)
+            return query_params.get('v', [None])[0]
+        
+        # If the URL is not valid or does not contain a video ID
+        raise ValueError("Could not extract video ID from given URL")
+    
+    def is_youtube_url(self, url: str) -> bool:
+        # Validates if the given URL is from Youtube
+        return "youtube.com" in url or "youtu.be" in url
 
     async def search(self, url:str) -> dict:
         # Video info is extracted
