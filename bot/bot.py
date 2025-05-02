@@ -38,6 +38,10 @@ async def resume(ctx):
 @bot.command()
 async def stop(ctx):
     await player.stop(ctx)
+    
+@bot.command()
+async def skip(ctx):
+    await player.play_next(ctx)
 
 # Execute bot
 bot.run(DISCORD_TOKEN)

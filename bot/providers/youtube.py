@@ -1,4 +1,4 @@
-from bot.providers.base import AudioProvider
+from .base import AudioProvider
 from yt_dlp import YoutubeDL
 from fuzzywuzzy import fuzz
 from urllib.parse import urlparse, parse_qs

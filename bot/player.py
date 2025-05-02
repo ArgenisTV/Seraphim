@@ -36,6 +36,7 @@ class MusicPlayer:
             # This line was from before two providers existed. info = await self.audio_provider.search(url)
             if "open.spotify.com" in url:
                 info = await self.sp_provider.search(url)
+                info = await self.yt_provider.search(info["title"])
             else:
                 info = await self.yt_provider.search(url)
         except Exception as e: # e is not used because if a song is not found, the error message will be the same regardless of the provider.
@@ -44,7 +45,6 @@ class MusicPlayer:
         
         # Append song to playlist 
         self.playlist.append(info)
-        await ctx.send(f"{voice_client.user}! Thy request... is worthy. Will attune to: *{info['title']}*")
             
         if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
             await self.play_next(ctx)
@@ -77,25 +77,25 @@ class MusicPlayer:
             # We need an async function to be executed and be disguised as a sync function.  
 
         ctx.voice_client.play(audio_source, after=after_playing)
-        await ctx.send(f"Attuning to: *{info['title']}*") 
+        await ctx.send(f"Thy request... is worthy! Attuning to: *{info['title']}*") 
 
     async def pause(self, ctx):
         if ctx.voice_client and ctx.voice_client.is_playing():
             ctx.voice_client.pause()
-            await ctx.send("{bot.user} *Freezes*")
+            await ctx.send("*Freezes*")
         else:
             await ctx.send("*Stares*")
 
     async def resume(self, ctx):
         if ctx.voice_client and ctx.voice_client.is_paused():
             ctx.voice_client.resume()
-            await ctx.send("*Awakens")
+            await ctx.send("*Awakens*")
         else:
             await ctx.send("*Fixates on you for a second*")
             
     async def stop(self, ctx):
         if ctx.voice_client:
             await ctx.voice_client.disconnect()
-            await ctx.send("{bot.user} *Slumbers*")
+            await ctx.send("*Slumbers*")
         else:
-            await ctx.send("{bot.user} *Flaps half its wings*")
+            await ctx.send("*Flaps half its wings*")

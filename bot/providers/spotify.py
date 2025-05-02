@@ -1,7 +1,7 @@
 import spotipy # Allows interaction with Spotify's API
 from spotipy.oauth2 import SpotifyClientCredentials
 
-from bot.providers.base import AudioProvider # Imports base interface
+from .base import AudioProvider # Imports base interface
 
 class SpotifyProvider(AudioProvider):
     # Seemingly, bots cannot play music from Spotify directly.
