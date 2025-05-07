@@ -51,7 +51,7 @@ class YoutubeProvider(AudioProvider):
                 for entry in info['entries']: # For each result from the given "URL" (song name), consider how much it matches with the URL and choose the one with the highest score.
                     title = entry.get('title', '').lower()
                     score = fuzz.partial_ratio(title, url.lower()) # From library FuzzyWuzzy. This measures the similarity between Strings from 0 to 100.
-                    if score > highest_score: 
+                    if score > highest_score:
                         best_match = entry
                         highest_score = score
                 info = best_match

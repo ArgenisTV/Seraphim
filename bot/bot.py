@@ -41,7 +41,11 @@ async def stop(ctx):
     
 @bot.command()
 async def skip(ctx):
-    await player.play_next(ctx)
+    await player.skip(ctx)
+    
+@bot.command()
+async def previous(ctx):
+    await player.play_previous(ctx)
 
 # Execute bot
 bot.run(DISCORD_TOKEN)

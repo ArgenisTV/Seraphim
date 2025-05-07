@@ -1,0 +1,26 @@
+# Ignore virtual env
+venv/
+.env
+
+# Cache and temp Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# VSCode config files
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Other unnecessary files
+*.md
+tests/
